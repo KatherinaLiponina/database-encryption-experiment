@@ -1,0 +1,121 @@
+{
+    "relations": [
+        {
+            "name": "events",
+            "size": 100,
+            "attributes": [
+                {
+                    "name": "id",
+                    "type": "UUID",
+                    "constraint": "PRIMARY KEY",
+                    "generation": "unique"
+                },
+                {
+                    "name": "user_id",
+                    "type": "UUID",
+                    "generation": "from_values",
+                    "values": [
+                        "911e5063-f925-4dde-9b1c-85364b490a86",
+                        "3468c1ef-f86e-4dd0-afb7-ace005366765",
+                        "838b5d6f-c011-40b7-906c-2aba8596fb72",
+                        "34343945-d44f-4767-8017-5b336ce91fc2"
+                    ]
+                },
+                {
+                    "name": "type",
+                    "type": "varchar(8)",
+                    "values": [
+                        "READ", "WRITE", "EXECUTE"
+                    ],
+                    "generation": "from_values"
+                },
+                {
+                    "name": "object",
+                    "type": "varchar(255)",
+                    "generation": "probabilistic"
+                }
+            ]
+        }
+    ],
+    "queries": [
+        {
+            "origin": "SELECT Count(*) as count FROM events",
+            "results": ["count"]
+        },
+        {
+            "origin": "SELECT object FROM events WHERE id = $1",
+            "args": ["events.id"],
+            "results": ["events.object"]
+        },
+        {
+            "origin": "SELECT object FROM events WHERE user_id = $1",
+            "args": ["events.user_id"],
+            "results": ["events.object"]
+        }
+    ],
+    "encryptions": [
+        {
+            "name": "without_encryption",
+            "cases": [
+                {}, {}, {}
+            ]
+        },
+        {
+            "name": "deterministic_encryption",
+            "rules": [
+                {
+                    "attribute": "events.object",
+                    "encryption": "aes_cbc"
+                }
+            ],
+            "cases": [
+                {},
+                {
+                    "transforms": [
+                        {
+                            "object": "object",
+                            "transform": "encrypt:aes_cbc"
+                        }
+                    ]
+                },
+                {
+                    "transforms": [
+                        {
+                            "object": "object",
+                            "transform": "encrypt:aes_cbc"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "probabilistic_encryption",
+            "rules": [
+                {
+                    "attribute": "events.object",
+                    "encryption": "aes_gcm"
+                }
+            ],
+            "cases": [
+                {},
+                {
+                    "transforms": [
+                        {
+                            "object": "object",
+                            "transform": "encrypt:aes_gcm"
+                        }
+                    ]
+                },
+                {
+                    "transforms": [
+                        {
+                            "object": "object",
+                            "transform": "encrypt:aes_gcm"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+
+}
